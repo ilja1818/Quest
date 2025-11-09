@@ -1,0 +1,207 @@
+﻿class StudyQuest {
+    constructor() {
+        this.xp = parseInt(localStorage.getItem('xp')) || 0;
+        this.coins = parseInt(localStorage.getItem('coins')) || 50;
+        this.level = parseInt(localStorage.getItem('level')) || 1;
+        this.progress = parseInt(localStorage.getItem('progress')) || 0;
+        this.completedQuests = JSON.parse(localStorage.getItem('completedQuests')) || [];
+        
+        this.timerMinutes = 25;
+        this.timerSeconds = 0;
+        this.timerRunning = false;
+        this.timerInterval = null;
+        
+        this.init();
+    }
+
+    init() {
+        this.updateUI();
+        this.setupEventListeners();
+        this.loadCompletedQuests();
+    }
+
+    updateUI() {
+        document.getElementById('xp').textContent = this.xp;
+        document.getElementById('coins').textContent = this.coins;
+        document.getElementById('level').textContent = this.level;
+        
+        const progressPercent = (this.progress / 80) * 100;
+        document.getElementById('progressFill').style.width = Math.min(progressPercent, 100) + '%';
+        
+        this.checkLevelUp();
+        this.updateShopButtons();
+    }
+
+    setupEventListeners() {
+        // Quest checkboxes
+        document.querySelectorAll('.quest input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.completeQuest(e.target.closest('.quest'));
+                }
+            });
+        });
+
+        // Timer controls
+        document.getElementById('startTimer').addEventListener('click', () => {
+            this.toggleTimer();
+        });
+
+        document.getElementById('resetTimer').addEventListener('click', () => {
+            this.resetTimer();
+        });
+
+        // Shop buttons
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.buyItem(e.target.closest('.item'));
+            });
+        });
+    }
+
+    completeQuest(questElement) {
+        const xp = parseInt(questElement.dataset.xp);
+        const coins = parseInt(questElement.dataset.coins);
+        const questId = questElement.querySelector('input').id;
+
+        if (this.completedQuests.includes(questId)) return;
+
+        this.xp += xp;
+        this.coins += coins;
+        this.progress += 5;
+        this.completedQuests.push(questId);
+
+        this.saveToStorage();
+        this.updateUI();
+        this.showNotification(`✅ Izpildīts! +${xp} XP, +${coins} monētas`);
+        
+        // Add visual feedback
+        questElement.style.background = '#c6f6d5';
+        setTimeout(() => {
+            questElement.style.background = '#f7fafc';
+        }, 1000);
+    }
+
+    checkLevelUp() {
+        const xpNeeded = this.level * 100;
+        if (this.xp >= xpNeeded) {
+            this.level++;
+            this.coins += 50;
+            this.showNotification(`🎉 Apsveicu! Sasniedzis ${this.level}. līmeni! +50 monētas`);
+            this.updateUI();
+        }
+    }
+
+    toggleTimer() {
+        if (this.timerRunning) {
+            this.pauseTimer();
+        } else {
+            this.startTimer();
+        }
+    }
+
+    startTimer() {
+        this.timerRunning = true;
+        document.getElementById('startTimer').textContent = 'Pauze';
+        
+        this.timerInterval = setInterval(() => {
+            this.timerSeconds--;
+            
+            if (this.timerSeconds < 0) {
+                this.timerMinutes--;
+                this.timerSeconds = 59;
+            }
+            
+            if (this.timerMinutes === 0 && this.timerSeconds === 0) {
+                this.timerComplete();
+            }
+            
+            this.updateTimerDisplay();
+        }, 1000);
+    }
+
+    pauseTimer() {
+        this.timerRunning = false;
+        document.getElementById('startTimer').textContent = 'Turpināt';
+        clearInterval(this.timerInterval);
+    }
+
+    resetTimer() {
+        this.timerRunning = false;
+        clearInterval(this.timerInterval);
+        this.timerMinutes = 25;
+        this.timerSeconds = 0;
+        document.getElementById('startTimer').textContent = 'Sākt';
+        this.updateTimerDisplay();
+    }
+
+    timerComplete() {
+        clearInterval(this.timerInterval);
+        this.showNotification('⏰ Laiks beidzies! Veic 5 minūšu pārtraukumu.');
+        this.coins += 10;
+        this.xp += 5;
+        this.updateUI();
+        this.resetTimer();
+    }
+
+    updateTimerDisplay() {
+        const display = document.getElementById('timeDisplay');
+        display.textContent = `${this.timerMinutes.toString().padStart(2, '0')}:${this.timerSeconds.toString().padStart(2, '0')}`;
+    }
+
+    buyItem(itemElement) {
+        const cost = parseInt(itemElement.dataset.cost);
+        
+        if (this.coins >= cost) {
+            this.coins -= cost;
+            const itemName = itemElement.querySelector('span').textContent;
+            this.showNotification(`🎁 Nopirkts: ${itemName}`);
+            itemElement.querySelector('.buy-btn').disabled = true;
+            itemElement.querySelector('.buy-btn').textContent = 'Nopirkts';
+            this.updateUI();
+        } else {
+            this.showNotification('❌ Nepietiek monētu!', 'error');
+        }
+    }
+
+    updateShopButtons() {
+        document.querySelectorAll('.item').forEach(item => {
+            const cost = parseInt(item.dataset.cost);
+            const btn = item.querySelector('.buy-btn');
+            btn.disabled = this.coins < cost || btn.textContent === 'Nopirkts';
+        });
+    }
+
+    loadCompletedQuests() {
+        this.completedQuests.forEach(questId => {
+            const checkbox = document.getElementById(questId);
+            if (checkbox) {
+                checkbox.checked = true;
+                checkbox.disabled = true;
+            }
+        });
+    }
+
+    showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${type} show`;
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    saveToStorage() {
+        localStorage.setItem('xp', this.xp);
+        localStorage.setItem('coins', this.coins);
+        localStorage.setItem('level', this.level);
+        localStorage.setItem('progress', this.progress);
+        localStorage.setItem('completedQuests', JSON.stringify(this.completedQuests));
+    }
+}
+
+// Initialize the app when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new StudyQuest();
+});

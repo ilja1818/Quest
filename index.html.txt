@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Quest - Learning Adventure</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 STUDY QUEST</h1>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=student" alt="Avatar">
+                    <span>Level: <span id="level">1</span></span>
+                </div>
+                <div class="stats">
+                    <div>XP: <span id="xp">0</span>/100</div>
+                    <div>Coins: <span id="coins">50</span></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="progress-section">
+            <h3>Your Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p>Goal: Pass final exam (80% progress)</p>
+        </div>
+
+        <div class="quests-section">
+            <h3>🛡️ Daily Quests</h3>
+            <div class="quests">
+                <div class="quest" data-xp="15" data-coins="10">
+                    <input type="checkbox" id="quest1">
+                    <label for="quest1">✅ Complete math homework</label>
+                </div>
+                <div class="quest" data-xp="20" data-coins="15">
+                    <input type="checkbox" id="quest2">
+                    <label for="quest2">✅ Create literature summary</label>
+                </div>
+                <div class="quest" data-xp="25" data-coins="20">
+                    <input type="checkbox" id="quest3">
+                    <label for="quest3">✅ Study 25 minutes without break</label>
+                </div>
+                <div class="quest" data-xp="30" data-coins="25">
+                    <input type="checkbox" id="quest4">
+                    <label for="quest4">✅ Review last week's material</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pomodoro-section">
+            <h3>⏱️ Focus Time</h3>
+            <div class="timer">
+                <div class="time-display" id="timeDisplay">25:00</div>
+                <div class="timer-controls">
+                    <button id="startTimer">Start</button>
+                    <button id="resetTimer">Reset</button>
+                </div>
+            </div>
+            <p>25 minutes study + 5 minutes break</p>
+        </div>
+
+        <div class="achievements-section">
+            <h3>🏆 Achievements</h3>
+            <div class="achievements">
+                <div class="achievement locked">🥉 First Day</div>
+                <div class="achievement locked">🥈 Week Hero</div>
+                <div class="achievement locked">🥇 Month Legend</div>
+            </div>
+        </div>
+
+        <div class="shop-section">
+            <h3>🛒 Shop</h3>
+            <div class="shop-items">
+                <div class="item" data-cost="30">
+                    <span>🎵 Background Music</span>
+                    <button class="buy-btn">Buy (30)</button>
+                </div>
+                <div class="item" data-cost="50">
+                    <span>🎨 Special Avatar</span>
+                    <button class="buy-btn">Buy (50)</button>
+                </div>
+                <div class="item" data-cost="100">
+                    <span>🌟 Legend Frame</span>
+                    <button class="buy-btn">Buy (100)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
